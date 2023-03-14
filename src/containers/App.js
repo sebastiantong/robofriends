@@ -1,43 +1,43 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import './App.css'
 import Scroll from '../components/Scroll'
+import ErrorBoundry from '../components/ErrorBoundry';
 
-class App extends Component {
-   constructor() {
-    super()
-    this.state = {
-     members: [],
-     searchfield: '' 
-    }
- }
+const App = () => {
+  const [members, setMembers] = useState([]);
+  const [searchfield, setSearchfield] = useState('');
+  const [count, setCount] = useState(0);
 
- componentDidMount(){
-  fetch('https://jsonplaceholder.typicode.com/users').then(response=> response.json()).then(users => this.setState({members: users}));
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+    .then(response=> response.json())
+    .then(users => setMembers(users));
+    console.log(count)
+  }, [count]) //only run if count changes
+
+const onSearchChange = (event) => {
+  setSearchfield(event.target.value)
 }
 
- onSearchChange = (event) => {
-   this.setState({searchfield: event.target.value})
- }
- 
-  render(){
-    const { members, searchfield } = this.state;
-    const filteredMembers = members.filter(member => {
-      return member.name.toLowerCase().includes(searchfield.toLowerCase())
-     })
-      return !members.length ?
-        <h1 className='tc f1'>Loading...</h1> :
-      (
-        <div className='tc'>  
-          <h1 className='f1'> Robofriends </h1>
-          <SearchBox searchChange={this.onSearchChange}/>
-          <Scroll>
-           <CardList members={filteredMembers}/>
-          </Scroll>
-        </div> 
-    );
-   }
-  }  
+const filteredMembers = members.filter(member => {
+  return member.name.toLowerCase().includes(searchfield.toLowerCase())
+  })
+  return !members.length ?
+    <h1 className='tc f1'>Loading...</h1> :
+  (
+    <div className='tc'>  
+      <h1 className='f1'> Robofriends </h1>
+      <button onClick={() => setCount(count + 1)}>Click me!</button>
+      <SearchBox searchChange={onSearchChange}/>
+      <Scroll>
+      <ErrorBoundry>           
+        <CardList members={filteredMembers}/>
+      </ErrorBoundry>
+      </Scroll>
+    </div> 
+);
+}  
     
 export default App;
